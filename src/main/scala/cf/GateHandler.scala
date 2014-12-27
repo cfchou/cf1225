@@ -18,9 +18,8 @@ class GateHandler(val conf: Config) extends Actor {
   override def receive: Receive = {
     case Http.Connected(remote, _) =>
       log.debug(s"connect from ${remote.getAddress}:${remote.getPort}")
-      val stub = system.actorOf(Props[StubHander])
+      val stub = system.actorOf(Props(classOf[StubHander], conf))
       sender ! Http.Register(stub)
-    case m =>
-      log.error("Unknown: " + m)
+    case m => log.error("Unknown: " + m)
   }
 }

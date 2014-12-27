@@ -1,27 +1,36 @@
 package cf
 
-import akka.actor.Actor
+import akka.actor.{Props, Actor}
 import akka.actor.Actor.Receive
+import akka.pattern.{ask, pipe}
+import akka.util.Timeout
+import com.typesafe.config.Config
 import grizzled.slf4j.Logger
 import spray.can.Http
 import spray.http.{HttpResponse, HttpMethods, HttpRequest}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 
-class StubHander extends Actor {
+class StubHander(conf:Config) extends Actor {
 
   val log = Logger[this.type]
 
   implicit val system = this.context.system
 
-  override def receive: Receive = {
+  implicit val ec = this.context.dispatcher
 
-    case HttpRequest(HttpMethods.GET, uri, headers, entity, _) =>
-      log.debug(s"GET $uri")
-      sender ! HttpResponse()
-    case HttpRequest(method, uri, headers, entity, _) =>
-      log.debug(s"$method $uri")
-      sender ! HttpResponse()
-    case m : Http.ConnectionClosed => log.info("ConnectionClosed: " + m)
+  implicit val reqTimeout = {
+    val dura = Duration(conf.getString("spray.can.server.request-timeout"))
+    log.debug(s"reqest-timeout: ${dura.length} ${dura.unit}")
+    Timeout.durationToTimeout(FiniteDuration(dura.length, dura.unit))
+  }
+
+  // TODO: test if generalizing to a remote actor works
+  val handler = system.actorOf(Props[RealHandler])
+
+  override def receive: Receive = {
     case m =>
-      log.error("Unknown: " + m)
+      log.debug("Stub: " + m)
+      handler ? m pipeTo(sender())
   }
 }
