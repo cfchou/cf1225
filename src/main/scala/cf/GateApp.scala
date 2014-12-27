@@ -24,7 +24,7 @@ object GateApp extends App {
 
   implicit val system = ActorSystem("GateApp")
 
-  val conf =ConfigFactory.load()
+  val conf = ConfigFactory.load()
 
   val runner = system.actorOf(Props(classOf[GateApp], conf))
 

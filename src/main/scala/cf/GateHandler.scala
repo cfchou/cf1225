@@ -1,6 +1,6 @@
 package cf
 
-import akka.actor.Actor
+import akka.actor.{Props, Actor}
 import akka.actor.Actor.Receive
 import com.typesafe.config.Config
 import spray.can.Http
@@ -13,17 +13,14 @@ class GateHandler(val conf: Config) extends Actor {
 
   log.debug("GateHandler started......")
 
+  implicit val system = this.context.system
+
   override def receive: Receive = {
     case Http.Connected(remote, _) =>
       log.debug(s"connect from ${remote.getAddress}:${remote.getPort}")
-      sender ! Http.Register(self)
-    case HttpRequest(HttpMethods.GET, uri, headers, entity, _) =>
-      log.debug(s"GET $uri")
-      sender ! HttpResponse()
-    case HttpRequest(method, uri, headers, entity, _) =>
-      log.debug(s"$method $uri")
-      sender ! HttpResponse()
+      val stub = system.actorOf(Props[StubHander])
+      sender ! Http.Register(stub)
     case m =>
-      log.error("Not a HttpRequest: " + m)
+      log.error("Unknown: " + m)
   }
 }
