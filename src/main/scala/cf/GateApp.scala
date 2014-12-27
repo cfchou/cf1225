@@ -5,6 +5,7 @@ import java.io.BufferedReader
 import akka.actor.Actor.Receive
 import akka.actor._
 import akka.io.IO
+import akka.io.Tcp
 import com.typesafe.config.{Config, ConfigFactory}
 import grizzled.slf4j.Logger
 import spray.can.Http
@@ -66,13 +67,9 @@ class GateApp(conf: Config) extends Actor {
 
   lazy val start = {
     // TODO: multiple interfaces/ports
-    val inf = Try[String] {
-      conf.getString("gate.interface")
-    }.getOrElse("localhost")
+    val inf = conf.getString("gate.interface")
 
-    val prt = Try[Int] {
-      conf.getInt("gate.port")
-    }.getOrElse(8080)
+    val prt = conf.getInt("gate.port")
 
     val handler = system.actorOf(Props(classOf[GateHandler], conf))
     log.debug(s"Bind $inf:$prt")
@@ -86,14 +83,14 @@ class GateApp(conf: Config) extends Actor {
     case STOP =>
       log.debug("STOP")
       listener.foreach(_ ! Http.Unbind)
-    case Http.Bound =>
-      log.debug("Bound")
+    case m: Tcp.Bound =>
+      log.debug(s"Bound: $m")
       listener = Some(listener.fold { sender() } { _ =>
         log.warn("listener exists, will be overwritten")
         sender()
       })
-    case Http.Unbound =>
-      log.debug("Unbound")
+    case m: Tcp.Unbound =>
+      log.debug(s"Unbound: $m")
       self ! PoisonPill
     case m: Http.CommandFailed =>
       log.error(s"Bind failed $m")
