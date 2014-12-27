@@ -3,6 +3,7 @@ package cf
 import akka.actor.Actor
 import akka.actor.Actor.Receive
 import com.typesafe.config.Config
+import spray.can.Http
 import spray.http.{HttpResponse, HttpMethods, HttpRequest}
 import grizzled.slf4j.Logger
 
@@ -13,6 +14,9 @@ class GateHandler(val conf: Config) extends Actor {
   log.debug("GateHandler started......")
 
   override def receive: Receive = {
+    case Http.Connected(remote, _) =>
+      log.debug(s"connect from ${remote.getAddress}:${remote.getPort}")
+      sender ! Http.Register(self)
     case HttpRequest(HttpMethods.GET, uri, headers, entity, _) =>
       log.debug(s"GET $uri")
       sender ! HttpResponse()
