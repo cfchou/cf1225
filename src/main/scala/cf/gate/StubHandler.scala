@@ -1,4 +1,4 @@
-package cf
+package cf.gate
 
 import akka.actor.{ActorLogging, Props, Actor}
 import akka.actor.Actor.Receive
