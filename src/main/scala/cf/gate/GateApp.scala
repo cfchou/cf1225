@@ -55,11 +55,10 @@ object GateApp extends App {
   }
 }
 
-class GateApp(conf: Config) extends Actor {
+class GateApp(conf: Config) extends Actor with ActorLogging {
 
   import GateApp.{START, STOP}
 
-  val log = Logger[this.type]
   log.debug("GateApp Start...")
 
   implicit val system = this.context.system
@@ -86,7 +85,7 @@ class GateApp(conf: Config) extends Actor {
     case m: Tcp.Bound =>
       log.debug(s"Bound: $m")
       listener = Some(listener.fold { sender() } { _ =>
-        log.warn("listener exists, will be overwritten")
+        log.warning("listener exists, will be overwritten")
         sender()
       })
     case m: Tcp.Unbound =>

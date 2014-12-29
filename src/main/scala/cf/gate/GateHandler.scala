@@ -1,15 +1,12 @@
 package cf
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorLogging, Props, Actor}
 import akka.actor.Actor.Receive
 import com.typesafe.config.Config
 import spray.can.Http
 import spray.http.{HttpResponse, HttpMethods, HttpRequest}
-import grizzled.slf4j.Logger
 
-class GateHandler(val conf: Config) extends Actor {
-
-  val log = Logger[this.type]
+class GateHandler(val conf: Config) extends Actor with ActorLogging {
 
   log.debug("GateHandler started......")
 
@@ -18,7 +15,7 @@ class GateHandler(val conf: Config) extends Actor {
   override def receive: Receive = {
     case Http.Connected(remote, _) =>
       log.debug(s"connect from ${remote.getAddress}:${remote.getPort}")
-      val stub = system.actorOf(Props(classOf[StubHander], conf))
+      val stub = system.actorOf(Props(classOf[StubHandler], conf))
       sender ! Http.Register(stub)
     case m => log.error("Unknown: " + m)
   }

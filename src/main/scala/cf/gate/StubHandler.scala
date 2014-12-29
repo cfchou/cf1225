@@ -1,19 +1,16 @@
 package cf
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorLogging, Props, Actor}
 import akka.actor.Actor.Receive
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import com.typesafe.config.Config
-import grizzled.slf4j.Logger
 import spray.can.Http
 import spray.http.{HttpResponse, HttpMethods, HttpRequest}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
-class StubHander(conf:Config) extends Actor {
-
-  val log = Logger[this.type]
+class StubHandler(conf:Config) extends Actor with ActorLogging {
 
   implicit val system = this.context.system
 
