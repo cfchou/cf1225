@@ -5,9 +5,6 @@ import akka.actor.Actor.Receive
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import com.typesafe.config.Config
-import spray.can.Http
-import spray.http.{HttpResponse, HttpMethods, HttpRequest}
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 class StubHandler(conf:Config) extends Actor with ActorLogging {

@@ -4,7 +4,6 @@ import akka.actor.{ActorLogging, Props, Actor}
 import akka.actor.Actor.Receive
 import com.typesafe.config.Config
 import spray.can.Http
-import spray.http.{HttpResponse, HttpMethods, HttpRequest}
 
 class GateHandler(val conf: Config) extends Actor with ActorLogging {
 
