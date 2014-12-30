@@ -1,10 +1,18 @@
 package cf.proxy
 
+import java.io.BufferedReader
+
 import akka.actor._
 import akka.io.{IO, Tcp}
+import akka.pattern.after
 import com.typesafe.config.{Config, ConfigFactory}
 import grizzled.slf4j.Logger
 import spray.can.Http
+
+import scala.concurrent.{Future, Promise, Await}
+import scala.concurrent.duration._
+import scala.io.Source
+import scala.util.Try
 
 object ProxyApp extends App {
 
@@ -22,27 +30,29 @@ object ProxyApp extends App {
   log.info("Start...")
 
   runner ! START
-  /*
-  log.debug("Start...")
-  val lf = List(Future.successful(1), Future.failed(new NoSuchElementException),
-    Future.successful(2))
-  val fl = Future.sequence(lf)
-  fl.value.get match {
-    case Success(v) => log.info("succ size: " + v.length)
-    case Failure(e) => log.error(e)
-  }
-  log.debug("Stop...")
-  */
 
-  /*
-  runAfter(5.seconds, system.scheduler) {
+  val reader = Source.stdin.bufferedReader
+  monitor(reader)
+  reader.close()
+  log.info("Stop...")
 
-  }
+  Try { Await.ready(Promise[Unit].future, 5.seconds) }
+  log.info("Shutdown...")
+  system.shutdown();
+  Try { Await.ready(Promise[Unit].future, 5.seconds) }
 
-  def runAfter[T](finiteDuration: FiniteDuration, using: Scheduler)(e: => T) = {
-    val timeoutF = after(finiteDuration, system.scheduler)(Future(e))
+  def monitor(input: BufferedReader): Unit = {
+    try {
+      input.readLine() match {
+        case m: String if "stop" == m.toLowerCase()=> runner ! STOP
+        case m =>
+          log.debug(s"Unknown cmd: $m")
+          monitor(input)
+      }
+    } catch {
+      case e: Exception => log.error(e)
+    }
   }
-  */
 }
 
 class ProxyApp(conf: Config) extends Actor with ActorLogging {
@@ -60,7 +70,7 @@ class ProxyApp(conf: Config) extends Actor with ActorLogging {
 
     val prt = conf.getInt("gate.multiplexer.port")
 
-    val handler = system.actorOf(Props(classOf[ProxyHandler], conf))
+    val handler = system.actorOf(Props(classOf[ProxyListener], conf))
     log.debug(s"Bind $inf:$prt")
     IO(Http) ! Http.Bind(handler, interface = inf, port = prt)
   }
@@ -80,7 +90,7 @@ class ProxyApp(conf: Config) extends Actor with ActorLogging {
       })
     case m: Tcp.Unbound =>
       log.debug(s"Unbound: $m")
-      self ! PoisonPill
+      context.stop(self)
     case m: Http.CommandFailed =>
       log.error(s"Bind failed $m")
     case m =>

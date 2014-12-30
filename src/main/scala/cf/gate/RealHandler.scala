@@ -10,13 +10,13 @@ class RealHandler extends Actor with ActorLogging {
   override def receive: Receive = {
     case HttpRequest(HttpMethods.GET, uri, headers, entity, _) =>
       log.debug(s"GET $uri")
-      sender ! HttpResponse()
+      sender ! HttpResponse(entity = "Hello Hello")
     case HttpRequest(method, uri, headers, entity, _) =>
       log.debug(s"$method $uri")
-      sender ! HttpResponse()
+      sender ! HttpResponse(entity = "Ello Ello")
     case m : Http.ConnectionClosed =>
       log.info("ConnectionClosed: " + m)
-      self ! PoisonPill
+      context.stop(self)
     case m => log.error("Unknown: " + m)
   }
 }

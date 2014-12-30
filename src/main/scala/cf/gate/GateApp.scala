@@ -90,7 +90,7 @@ class GateApp(conf: Config) extends Actor with ActorLogging {
       })
     case m: Tcp.Unbound =>
       log.info(s"Unbound: $m")
-      self ! PoisonPill
+      context.stop(self)
     case m: Http.CommandFailed =>
       log.error(s"Bind failed $m")
     case m =>
