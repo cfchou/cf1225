@@ -59,7 +59,7 @@ class GateApp(conf: Config) extends Actor with ActorLogging {
 
   import GateApp.{START, STOP}
 
-  log.debug("GateApp Start...")
+  log.info("GateApp Start...")
 
   implicit val system = this.context.system
   var listener: Option[ActorRef] = None
@@ -71,25 +71,25 @@ class GateApp(conf: Config) extends Actor with ActorLogging {
     val prt = conf.getInt("gate.port")
 
     val handler = system.actorOf(Props(classOf[GateHandler], conf))
-    log.debug(s"Bind $inf:$prt")
+    log.info(s"Bind $inf:$prt")
     IO(Http) ! Http.Bind(handler, interface = inf, port = prt)
   }
 
   override def receive: Receive = {
     case START =>
-      log.debug("START")
+      log.info("START")
       start
     case STOP =>
-      log.debug("STOP")
+      log.info("STOP")
       listener.foreach(_ ! Http.Unbind)
     case m: Tcp.Bound =>
-      log.debug(s"Bound: $m")
+      log.info(s"Bound: $m")
       listener = Some(listener.fold { sender() } { _ =>
         log.warning("listener exists, will be overwritten")
         sender()
       })
     case m: Tcp.Unbound =>
-      log.debug(s"Unbound: $m")
+      log.info(s"Unbound: $m")
       self ! PoisonPill
     case m: Http.CommandFailed =>
       log.error(s"Bind failed $m")
