@@ -14,6 +14,8 @@ import scala.util.Success
 class Delegator(target: (String, Int), conf: Config)
   extends Actor  with ActorLogging {
 
+  log.info("* * * * * Delegator Start...")
+
   implicit val system = context.system
   implicit val ec = context.dispatcher
   implicit val connTimeout = cf.connectingTimeout(conf)
@@ -40,7 +42,7 @@ class Delegator(target: (String, Int), conf: Config)
   }
 
   def connected(major: ActorRef): Receive = {
-    case m =>
+    case m: HttpRequest =>
       log.debug(s"Delegator of ${target._1}:${target._2}: " + m)
       major ? m pipeTo(sender())
   }

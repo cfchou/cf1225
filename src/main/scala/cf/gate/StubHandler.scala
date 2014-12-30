@@ -9,10 +9,10 @@ import scala.concurrent.duration._
 
 class StubHandler(conf:Config) extends Actor with ActorLogging {
 
+  log.debug("* * * * * StubHandler Start...")
+
   implicit val system = this.context.system
-
   implicit val ec = this.context.dispatcher
-
   implicit val reqTimeout = {
     val dura = Duration(conf.getString("spray.can.server.request-timeout"))
     log.debug(s"reqest-timeout: ${dura.length} ${dura.unit}")

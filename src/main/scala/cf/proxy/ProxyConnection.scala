@@ -17,6 +17,8 @@ import scala.util.{Failure, Success}
 
 class ProxyConnection(conf: Config) extends Actor with ActorLogging {
 
+  log.info("* * * * * ProxyConnection Start......")
+
   implicit val system = this.context.system
   implicit val ec = context.dispatcher
   implicit val connTimeout = cf.connectingTimeout(conf)

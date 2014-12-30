@@ -7,7 +7,7 @@ import spray.can.Http
 
 class GateHandler(val conf: Config) extends Actor with ActorLogging {
 
-  log.debug("GateHandler started......")
+  log.debug("* * * * * GateHandler Start......")
 
   implicit val system = this.context.system
 

@@ -6,6 +6,8 @@ import com.typesafe.config.Config
 class DelegatorMx(targets: List[(String, Int)], conf: Config) extends Actor
   with ActorLogging {
 
+  log.info("* * * * * DelegatorMx Start...")
+
   implicit val system = this.context.system
 
   val refs = targets map { t =>

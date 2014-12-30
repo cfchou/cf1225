@@ -7,6 +7,8 @@ import spray.http.{HttpMethods, HttpResponse, HttpRequest}
 
 class RealHandler extends Actor with ActorLogging {
 
+  log.info("* * * * * RealHandler Start...")
+
   override def receive: Receive = {
     case HttpRequest(HttpMethods.GET, uri, headers, entity, _) =>
       log.debug(s"GET $uri")

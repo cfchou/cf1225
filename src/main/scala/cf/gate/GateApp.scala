@@ -59,7 +59,7 @@ class GateApp(conf: Config) extends Actor with ActorLogging {
 
   import GateApp.{START, STOP}
 
-  log.info("GateApp Start...")
+  log.info("* * * * * GateApp Start...")
 
   implicit val system = this.context.system
   var listener: Option[ActorRef] = None

@@ -6,7 +6,7 @@ import spray.can.Http
 
 class ProxyListener(conf: Config) extends Actor with ActorLogging {
 
-  log.debug("ProxyHandler started......")
+  log.info("* * * * * ProxyListener Start......")
 
   implicit val system = this.context.system
 

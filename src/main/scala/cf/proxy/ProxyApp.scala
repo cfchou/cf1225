@@ -59,7 +59,7 @@ class ProxyApp(conf: Config) extends Actor with ActorLogging {
 
   import cf.proxy.ProxyApp.{START, STOP}
 
-  log.debug("ProxyApp Start...")
+  log.info("* * * * * ProxyApp Start...")
 
   implicit val system = this.context.system
   var listener: Option[ActorRef] = None
